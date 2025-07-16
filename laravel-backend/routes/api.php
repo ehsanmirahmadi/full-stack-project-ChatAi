@@ -1,4 +1,6 @@
 <?php
+
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Hash;
@@ -18,49 +20,13 @@ Route::get('/csrf-cookie', function () {
 });
 
 // ثبت‌نام
-Route::post('/register', function (Request $request) {
-    $validated = $request->validate([
-        'name' => ['required', 'string', 'max:255'],
-        'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-        'password' => ['required', 'string', 'min:8'],
-    ]);
-
-    $user = User::create([
-        'name' => $validated['name'],
-        'email' => $validated['email'],
-        'password' => bcrypt($validated['password']),
-    ]);
-
-    Auth::login($user);
-
-    return response()->json(['message' => 'ثبت‌نام و ورود موفق']);
-});
+Route::post('/register', [UserController::class, 'registerUser']);
 
 // ورود
-Route::post('/login', function (Request $request) {
-    $request->validate([
-        'email' => ['required', 'email'],
-        'password' => ['required'],
-    ]);
-
-    $user = User::where('email', $request->email)->first();
-
-    if (! $user || ! Hash::check($request->password, $user->password)) {
-        throw ValidationException::withMessages([
-            'email' => ['اطلاعات وارد شده اشتباه است.'],
-        ]);
-    }
-
-    Auth::login($user);
-
-    return response()->json(['message' => 'ورود موفق']);
-});
+Route::post('/login', [UserController::class, 'loginUser']);
 
 // خروج
-Route::post('/logout', function (Request $request) {
-    Auth::logout();
-    return response()->json(['message' => 'خروج موفق']);
-});
+Route::post('/logout', [UserController::class, 'logoutUser']);
 
 /*
 |--------------------------------------------------------------------------
