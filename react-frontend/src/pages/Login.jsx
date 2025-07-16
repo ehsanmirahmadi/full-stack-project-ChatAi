@@ -33,7 +33,7 @@ export default function Login() {
                             <div className="row g-0">
                                 <div className="col-md-6 col-lg-5 d-none d-md-block">
                                     <img
-                                        src=""
+                                        src="../assets/img/tablo.jpg"
                                         alt="login form" className="img-fluid" style="border-radius: 1rem 0 0 1rem;"/>
                                 </div>
                                 <div className="col-md-6 col-lg-7 d-flex align-items-center">
