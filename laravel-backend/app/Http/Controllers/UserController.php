@@ -12,47 +12,46 @@ use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-    protected UserService $userService;
-    public function __construct(UserService $userService){$this->userService = $userService;}
-
-    public function getUser()
-    {
-
-    }
+    public function __construct(protected UserService $userService) {}
     public function registerUser(regesterRequest $request) :JsonResponse
     {
         $user = $this->userService->createUser($request->validated());
         return response()->json(['message' => 'ثبت‌نام و ورود موفق', 'user' => $user]);
     }
-
     public function loginUser(loginRequste $request) : JsonResponse
     {
-
         $user = $this->userService->login($request->validated());
-        return response()->json(['message' => 'ورود موفق']);
+        return response()->json(['message' => 'ورود موفق' , 'user' => $user]);
     }
-
-    public function logoutUser() :JsonResponse
+    public function logoutUser(Request $request) :JsonResponse
     {
-        Auth::logout();
-        return response()->json(['message' => 'خروج موفق']);
+        auth()->guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return response()->json(['message' => 'خروج با موفقیت انجام شد.']);
     }
-
-    public function updateUser(updateRequest $request) :JsonResponse
+    public function getUser(Request $request): JsonResponse
     {
-        $user = auth()->user();
-        $this->userService->updateUser($user , $request->validated());
         return response()->json([
-                'status' => true,
-                'message' => 'اطلاعات با موفقیت به‌روزرسانی شد',
-                'user' => $user,
-            ]);
+            'status' => true,
+            'user' => $request->user(),
+        ]);
     }
-
-    public function deleteUser() : JsonResponse
+    public function updateUser(UpdateRequest $request): JsonResponse
     {
-        $user = auth()->user();
-        $user->delete();
+        $user = $request->user();
+        $this->userService->updateUser($user, $request->validated());
+
+        return response()->json([
+            'status' => true,
+            'message' => 'اطلاعات با موفقیت به‌روزرسانی شد',
+            'user' => $user->fresh(),
+        ]);
+    }
+    public function deleteUser(Request $request): JsonResponse
+    {
+        $request->user()->delete();
         return response()->json([
             'status' => true,
             'message' => 'حساب کاربری حذف شد',

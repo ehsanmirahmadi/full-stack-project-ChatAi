@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ChatResource;
+use App\Http\Resources\MessageResource;
 use App\Models\Chat;
 use App\Service\OpenRouterService;
 use Illuminate\Http\Request;
@@ -11,18 +13,9 @@ class AIChatController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-
-        $chats = $user->chats()
-            ->latest()
-            ->withCount('messages')
-            ->get()
-            ->map(function ($chat) {
-                return [
-                    'id' => $chat->id,
-                    'title' => $chat->title ?? 'بدون عنوان',
-                    'updated_at' => $chat->updated_at->toIso8601String(),
-                ];
-            });
+        $chats = ChatResource::collection(
+            $user->chats()->latest()->withCount('messages')->get()
+        );
 
         return response()->json([
             'chats' => $chats,
@@ -38,24 +31,7 @@ class AIChatController extends Controller
         if ($chat->user_id !== $request->user()->id) {
             abort(403, 'دسترسی غیرمجاز');
         }
-
-        // ذخیره پیام کاربر
-        $chat->messages()->create([
-            'user_id' => $request->user()->id,
-            'role' => 'user',
-            'content' => $request->input('message'),
-        ]);
-
-        // گرفتن پاسخ از مدل
-        $reply = $openRouter->sendMessage($chat);
-
-        // ذخیره پیام مدل
-        $chat->messages()->create([
-            'user_id' => null,
-            'role' => 'assistant',
-            'content' => $reply,
-        ]);
-
+        $reply = $openRouter->handleChatReply($chat, $request->user(), $request->input('message'));
         return response()->json([
             'reply' => $reply,
         ]);
@@ -66,18 +42,9 @@ class AIChatController extends Controller
         if ($chat->user_id !== auth()->id()) {
             abort(403, 'دسترسی غیرمجاز');
         }
-        $messages = $chat->messages()
-            ->orderBy('created_at')
-            ->get()
-            ->map(function ($message) {
-                return [
-                    'id' => $message->id,
-                    'role' => $message->user_id ? 'user' : 'assistant',
-                    'content' => $message->content,
-                    'timestamp' => $message->created_at->toIso8601String(),
-                ];
-            });
-
+        $messages = MessageResource::collection(
+            $chat->messages()->orderBy('created_at')->get()
+        );
         return response()->json([
             'messages' => $messages,
         ]);
@@ -94,11 +61,7 @@ class AIChatController extends Controller
         ]);
 
         return response()->json([
-            'chat' => [
-                'id' => $chat->id,
-                'title' => $chat->title,
-                'created_at' => $chat->created_at->toIso8601String(),
-            ],
+            'chat' => new ChatResource($chat),
             'message' => 'چت جدید با موفقیت ساخته شد.',
         ], 201);
     }

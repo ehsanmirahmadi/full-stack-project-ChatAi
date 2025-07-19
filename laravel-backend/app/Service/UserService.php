@@ -10,9 +10,6 @@ use Illuminate\Validation\ValidationException;
 
 class UserService implements UserInterFace
 {
-    /**
-     * Create a new class instance.
-     */
     public function __construct(){}
     public function createUser(array $userData) : User
     {
@@ -36,7 +33,6 @@ class UserService implements UserInterFace
     }
     public function login(array $userDate) :  ?User
     {
-
         $user = User::where('email', $userDate['email'])->first();
 
         if (! $user || ! Hash::check($userDate['password'], $user->password)) {
@@ -47,6 +43,4 @@ class UserService implements UserInterFace
         Auth::login($user);
         return $user;
     }
-
-
 }

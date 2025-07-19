@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Models\Chat;
+use App\Models\User;
 use Illuminate\Support\Facades\Http;
 
 class OpenRouterService
@@ -18,7 +19,7 @@ class OpenRouterService
     {
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->apiKey,
-            'HTTP-Referer' => 'http://laravel-api.local/', // الزامی توسط OpenRouter
+            'HTTP-Referer' => 'http://laravel-api.local/',
             'X-Title' => 'ChatAI Laravel',
         ])->post('https://openrouter.ai/api/v1/chat/completions', [
             'model' => $this->model,
@@ -43,4 +44,23 @@ class OpenRouterService
                 ];
             })->toArray();
     }
+    public function handleChatReply(Chat $chat, User $user, string $message): string
+    {
+        $chat->messages()->create([
+            'user_id' => $user->id,
+            'role' => 'user',
+            'content' => $message,
+        ]);
+
+        $reply = $this->sendMessage($chat);
+
+        $chat->messages()->create([
+            'user_id' => null,
+            'role' => 'assistant',
+            'content' => $reply,
+        ]);
+
+        return $reply;
+    }
+
 }
