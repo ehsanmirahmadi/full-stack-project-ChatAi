@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AIChatController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -35,5 +36,22 @@ Route::post('/logout', [UserController::class, 'logoutUser']);
 */
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+    return response()->json([
+        'status' => true,
+        'user' => $request->user(),
+    ]);
+});
+
+// routes/api.php
+Route::middleware('auth:sanctum')->put('/user', [UserController::class, 'updateUser']);
+
+// routes/api.php
+Route::middleware('auth:sanctum')->delete('/user', [UserController::class, 'deleteUser']);
+
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/chats', [AIChatController::class, 'index']);
+    Route::post('/chats', [AIChatController::class, 'store']);
+    Route::post('/chats/{chat}/send', [AIChatController::class, 'send']);
+    Route::get('/chats/{chat}/messages', [AIChatController::class, 'messages']);
 });

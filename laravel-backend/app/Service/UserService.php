@@ -13,10 +13,7 @@ class UserService implements UserInterFace
     /**
      * Create a new class instance.
      */
-    public function __construct()
-    {
-        //
-    }
+    public function __construct(){}
     public function createUser(array $userData) : User
     {
         $data = [
@@ -26,6 +23,15 @@ class UserService implements UserInterFace
         ];
         $user = User::create($data);
         Auth::login($user);
+        return $user;
+    }
+    public function updateUser( $user , array $userData) :  ?User
+    {
+        if (isset($userData['password'])) {
+            $userData['password'] = Hash::make($userData['password']);
+        }
+
+        $user->update($userData);
         return $user;
     }
     public function login(array $userDate) :  ?User
@@ -41,4 +47,6 @@ class UserService implements UserInterFace
         Auth::login($user);
         return $user;
     }
+
+
 }
