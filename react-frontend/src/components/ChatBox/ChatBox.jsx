@@ -6,10 +6,13 @@ import {
     FaRegClock, FaRegStar, FaRegEdit, FaBars
 } from 'react-icons/fa';
 import { BsThreeDotsVertical, BsStopFill } from 'react-icons/bs';
+import useAuthStore from "../../store/authStore.js";
 
 export default function ChatBox(){
     // State مدیریت چت فعال
     const [activeChat, setActiveChat] = useState(1);
+    const { user } = useAuthStore();
+
 
     // State برای پیام‌ها
     const [messages, setMessages] = useState({
@@ -117,7 +120,9 @@ export default function ChatBox(){
         setSidebarOpen(!sidebarOpen);
     };
     return(
+
         <div className="flex h-screen max-h-screen bg-gray-50">
+            <h1>سلام، {user?.name}</h1>
             {/* پنل کناری - لیست مکالمات */}
             {sidebarOpen && (
                 <div className="w-1/4 bg-white border-r border-gray-200 flex flex-col">

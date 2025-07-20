@@ -1,24 +1,55 @@
 import {useState} from "react";
 import {FaEnvelope, FaEye, FaEyeSlash, FaLock, FaUser} from "react-icons/fa";
+import {useNavigate} from "react-router-dom";
+import {registerUser} from "../../api/auth.js";
 
 export default function Register() {
     const [showPassword, setShowPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [successMessage, setSuccessMessage] = useState(null);
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         password: ''
     });
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
             [name]: value
         }));
+        if (error) setError(null);
     };
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Form Submitted:', formData);
-        // اینجا می‌تونی منطق ثبت‌نام رو اضافه کنی
+        setIsLoading(true);
+        setError(null);
+        setSuccessMessage(null);
+
+        try {
+            // ارسال درخواست به API
+            const response = await registerUser(formData);
+            console.log(response);
+            // نمایش پیام موفقیت
+            setSuccessMessage('ثبت‌نام شما با موفقیت انجام شد! در حال انتقال...');
+
+            // هدایت به صفحه ورود بعد از 2 ثانیه
+            setTimeout(() => {
+                navigate('/login');
+            }, 2000);
+
+        } catch (err) {
+            // مدیریت خطاهای مختلف
+            const errorMessage = err.response?.data?.message ||
+                err.response?.data?.error ||
+                'خطایی در ثبت‌نام رخ داده است. لطفاً مجدداً تلاش کنید.';
+            setError(errorMessage);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const togglePasswordVisibility = () => {
@@ -34,6 +65,16 @@ export default function Register() {
                     </div>
 
                     <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                        {error && (
+                            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                                {error}
+                            </div>
+                        )}
+                        {successMessage && (
+                            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+                                {successMessage}
+                            </div>
+                        )}
                         {/* فیلد نام */}
                         <div className="space-y-2">
                             <label htmlFor="name" className="block text-sm font-medium text-gray-700">
@@ -112,14 +153,21 @@ export default function Register() {
                             type="submit"
                             className="w-full bg-gradient-to-r from-indigo-600 to-purple-700 text-white py-3 rounded-lg font-bold hover:from-indigo-700 hover:to-purple-800 transition-all shadow-lg hover:shadow-xl"
                         >
-                            ثبت نام
+                            {isLoading ? (
+                                <>
+                                    <FaSpinner className="animate-spin ml-2" />
+                                    در حال ثبت‌نام...
+                                </>
+                            ) : (
+                                'ثبت نام'
+                            )}
                         </button>
 
                         {/* لینک ورود */}
                         <div className="text-center pt-4">
                             <p className="text-gray-600">
                                 قبلاً حساب دارید؟
-                                <a href="#" className="text-indigo-600 font-medium hover:text-indigo-800 mr-1">
+                                <a href="/login" className="text-indigo-600 font-medium hover:text-indigo-800 mr-1">
                                     وارد شوید
                                 </a>
                             </p>
