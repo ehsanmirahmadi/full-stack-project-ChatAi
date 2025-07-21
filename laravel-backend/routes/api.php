@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 Route::prefix('auth')->group(function () {
-    Route::get('/csrf-cookie', function () {return response()->json(['message' => 'CSRF cookie set']);});
     Route::post('/register', [UserController::class, 'registerUser']);
     Route::post('/login', [UserController::class, 'loginUser']);
     Route::post('/logout', [UserController::class, 'logoutUser'])->middleware('auth:sanctum');

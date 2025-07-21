@@ -7,11 +7,15 @@ import {
 } from 'react-icons/fa';
 import { BsThreeDotsVertical, BsStopFill } from 'react-icons/bs';
 import useAuthStore from "../../store/authStore.js";
+import {logoutUser} from "../../api/auth.js";
+import {useNavigate} from "react-router-dom";
+import UserProfileModal from "./UserProfileModal.jsx";
 
 export default function ChatBox(){
     // State مدیریت چت فعال
     const [activeChat, setActiveChat] = useState(1);
     const { user } = useAuthStore();
+    console.log(user);
 
 
     // State برای پیام‌ها
@@ -119,9 +123,35 @@ export default function ChatBox(){
     const toggleSidebar = () => {
         setSidebarOpen(!sidebarOpen);
     };
+    ///////
+
+    const { logout } = useAuthStore();
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        try {
+            await logoutUser();  // تماس با بک‌اند برای حذف توکن
+        } catch (error) {
+            console.error("Logout error:", error);
+        } finally {
+            logout();
+            navigate('/login');
+        }
+    };
     return(
 
         <div className="flex h-screen max-h-screen bg-gray-50">
+            {/**/}
+            <button
+                onClick={handleLogout}
+                className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition"
+            >
+                خروج از حساب
+            </button>
+            {/**/}
+            {/**/}
+            <UserProfileModal />
+            {/**/}
             <h1>سلام، {user?.name}</h1>
             {/* پنل کناری - لیست مکالمات */}
             {sidebarOpen && (

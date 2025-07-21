@@ -37,7 +37,7 @@ export default function Login(){
         } catch (err) {
             const errorMessage = err.response?.data?.message ||
                 err.response?.data?.error ||
-                'خطایی در ورود رخ داده است. لطفاً مجدداً تلاش کنید.';
+                `خطایی در ورود رخ داده است. لطفاً مجدداً تلاش کنید${err}.`;
             setError(errorMessage);
         } finally {
             setIsLoading(false);

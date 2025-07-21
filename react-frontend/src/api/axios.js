@@ -1,10 +1,10 @@
+// src/api/api.js
 import axios from 'axios';
 
-// تابع کمکی برای دریافت مقدار کوکی
 const getCookie = (name) => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
+    return parts.length === 2 ? parts.pop().split(';').shift() : null;
 };
 
 const api = axios.create({
@@ -16,28 +16,31 @@ const api = axios.create({
     },
 });
 
-api.interceptors.request.use(async (config) => {
-    // فقط برای درخواست‌های غیر GET نیاز به CSRF token داریم
-    if (config.method !== 'get' && !getCookie('XSRF-TOKEN')) {
-        try {
-            // دریافت کوکی CSRF
-            await axios.get('http://laravel-api.local/sanctum/csrf-cookie', {
-                withCredentials: true
-            });
+// جلوگیری از ارسال چندباره csrf-cookie
+let csrfPromise = null;
 
-            // تاخیر کوتاه برای اطمینان از تنظیم کوکی
-            await new Promise(resolve => setTimeout(resolve, 100));
-        } catch (error) {
-            console.error('Failed to get CSRF token:', error);
+api.interceptors.request.use(async (config) => {
+    const xsrfToken = getCookie('XSRF-TOKEN');
+
+    if (!xsrfToken) {
+        if (!csrfPromise) {
+            csrfPromise = axios.get('http://laravel-api.local/sanctum/csrf-cookie', {
+                withCredentials: true,
+                headers: {
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            }).finally(() => {
+                csrfPromise = null;
+            });
         }
+
+        await csrfPromise;
     }
 
-    // برای درخواست‌های غیر GET، هدر X-XSRF-TOKEN را تنظیم می‌کنیم
-    if (config.method !== 'get') {
-        const xsrfToken = getCookie('XSRF-TOKEN');
-        if (xsrfToken) {
-            config.headers['X-XSRF-TOKEN'] = xsrfToken;
-        }
+    const freshToken = getCookie('XSRF-TOKEN');
+    if (freshToken) {
+        config.headers['X-XSRF-TOKEN'] = freshToken;
     }
 
     return config;
