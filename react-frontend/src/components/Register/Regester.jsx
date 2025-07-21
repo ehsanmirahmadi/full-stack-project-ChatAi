@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {FaEnvelope, FaEye, FaEyeSlash, FaLock, FaUser} from "react-icons/fa";
+import {FaEnvelope, FaEye, FaEyeSlash, FaLock, FaSpinner, FaUser} from "react-icons/fa";
 import {useNavigate} from "react-router-dom";
 import {registerUser} from "../../api/auth.js";
 
@@ -33,16 +33,14 @@ export default function Register() {
             // ارسال درخواست به API
             const response = await registerUser(formData);
             console.log(response);
-            // نمایش پیام موفقیت
             setSuccessMessage('ثبت‌نام شما با موفقیت انجام شد! در حال انتقال...');
 
-            // هدایت به صفحه ورود بعد از 2 ثانیه
+
             setTimeout(() => {
                 navigate('/login');
             }, 2000);
 
         } catch (err) {
-            // مدیریت خطاهای مختلف
             const errorMessage = err.response?.data?.message ||
                 err.response?.data?.error ||
                 'خطایی در ثبت‌نام رخ داده است. لطفاً مجدداً تلاش کنید.';
