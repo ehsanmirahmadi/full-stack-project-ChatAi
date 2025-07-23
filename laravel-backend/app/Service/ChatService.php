@@ -5,6 +5,7 @@ namespace App\Service;
 
 use App\InterFace\ChatInterFaceService;
 use App\Models\Chat;
+use App\Models\Message;
 use Illuminate\Http\JsonResponse;
 
 class ChatService implements ChatInterFaceService
@@ -60,6 +61,21 @@ class ChatService implements ChatInterFaceService
         }
         return response()->json([
             'message' => 'failed delete chat',
+        ]);
+    }
+
+    public function showChatByChatId($userId,$chatId) : JsonResponse
+    {
+        $chat = Chat::with('message')->where("user_id" , $userId)->where("id" , $chatId)->first();
+        $res = $chat->message;
+        if (isset($res[0])){
+            return response()->json([
+                'message' => 'success get message',
+                'messages' => $res
+            ]);
+        }
+        return response()->json([
+            'message' => 'failed get message',
         ]);
     }
 }

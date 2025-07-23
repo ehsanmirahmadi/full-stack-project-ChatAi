@@ -8,4 +8,9 @@ class Chat extends Model
 {
     protected $table = 'chats';
     protected $guarded = [];
+
+    public function message()
+    {
+        return $this->hasMany(Message::class,'chat_id','id');
+    }
 }
