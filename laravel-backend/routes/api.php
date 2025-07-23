@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AIController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ChatController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,3 +17,7 @@ Route::get('/logout' , [AuthController::class, 'logout'])->middleware('auth:sanc
 
 
 Route::post('/chatAi' , [AIController::class, 'chatAi'])->name('message-Ai');
+
+Route::get('/chats' , [ChatController::class, 'index'])->middleware('auth:sanctum');
+Route::post('/chats' , [ChatController::class, 'store'])->middleware('auth:sanctum');
+Route::delete('/chats/{chatId}' , [ChatController::class, 'destroy'])->middleware('auth:sanctum');
