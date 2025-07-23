@@ -15,4 +15,4 @@ Route::post('/login' , [AuthController::class, 'login']);
 Route::get('/logout' , [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
 
-Route::post('/chat' , [AIController::class, 'message']);
+Route::post('/chatAi' , [AIController::class, 'chatAi'])->name('message-Ai');
