@@ -52,7 +52,7 @@ class AuthService implements AuthInterFaceService
         return response()->json([
             'message' => 'User successfully exists',
             'token' => $token,
-            ], 200);
+            ]);
 
     }
 }

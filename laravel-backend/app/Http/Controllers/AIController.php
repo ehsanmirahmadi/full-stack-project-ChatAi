@@ -2,28 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\MessageRequest;
+use App\Service\AiService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 class AIController extends Controller
 {
-    public function chatAi(Request $request) : JsonResponse
+    public function __construct(private AiService $aiService)
     {
-        $apiKey = env('AI_API_KEY');
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $apiKey,
-            'HTTP-Referer' => 'http://laravel-api.local',
-            'X-Title' => 'ChatAi',
-        ])->post("https://openrouter.ai/api/v1/chat/completions" , [
-            'model'=>"qwen/qwen3-235b-a22b-07-25:free",
-            'messages' => [
-                [
-                    'role' => 'user',
-                    'content' => $request->input('message' , 'hi'),
-                ],
-            ],
-        ]);
-        return response()->json($response->json());
+    }
+    public function handelMessage(MessageRequest $request , $chatId) :JsonResponse
+    {
+        $messageUser = $this->aiService->createMessageUser($request->user()->id , $chatId , $request->validated());
+        $sendMessage = $this->aiService->sendMessageAi(json_encode($messageUser->message));
+//        $messageAi = $this->aiService->createMessageAI($sendMessage);
+
+        return response()->json($sendMessage);
     }
 }
