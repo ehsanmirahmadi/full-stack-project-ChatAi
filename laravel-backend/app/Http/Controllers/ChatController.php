@@ -17,18 +17,18 @@ class ChatController extends Controller
     public function index(Request $request) : JsonResponse
     {
        $res = $this->chatService->findAllByUser($request->user()->id);
-       return $res;
+       return response()->json($res);
     }
 
     public function store(Request $request) : JsonResponse
     {
         $res = $this->chatService->createChat($request->user()->id);
-        return $res;
+        return response()->json($res);
     }
 
     public function destroy(Request $request , $chatId) : JsonResponse
     {
         $res = $this->chatService->deleteChat($request->user()->id , $chatId);
-        return $res;
+        return response()->json($res);
     }
 }
