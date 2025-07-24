@@ -1,10 +1,12 @@
 import Logi from "../../assest/imgaes/logo2.png";
+import { useParams } from 'react-router-dom'
 
 export default function ChatBoxPage() {
+    const { chat_id } = useParams()
     return (
 
         <div className="min-h-screen flex bg-gray-900 text-white">
-
+            <h1>{chat_id}</h1>
             <div className="w-[25%] bg-gray-800 flex flex-col justify-between p-4">
                 <div>
                     <div className="flex justify-center mb-6">

@@ -1,6 +1,7 @@
 import Logi from '../../assest/imgaes/logo2.png'
 import { useState } from 'react'
 import apiClient from '../../api/api.js'
+import { useAuth } from '../../ConText/AuthContext.jsx'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -8,7 +9,7 @@ export default function LoginPage() {
   const [message, setMessage] = useState('')
   const [loding, setLoding] = useState(false)
 
-  let BEARER_TOKEN = ''
+  const { login } = useAuth()
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -37,7 +38,9 @@ export default function LoginPage() {
             )
             .then((response) => {
               setMessage(response.data.original.message)
-              BEARER_TOKEN = response.data.original.token
+              const token = response.data.original.token
+              const user = response.data.original.user
+              login(token, user)
               setLoding(false)
             })
             .catch((error) => {
