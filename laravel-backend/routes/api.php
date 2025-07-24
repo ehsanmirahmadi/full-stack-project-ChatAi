@@ -16,8 +16,6 @@ Route::post('/login' , [AuthController::class, 'login']);
 Route::get('/logout' , [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
 
-Route::post('/chatAi' , [AIController::class, 'chatAi'])->name('message-Ai')->middleware('auth:sanctum');
-
 Route::get('/chats' , [ChatController::class, 'index'])->middleware('auth:sanctum');
 
 Route::post('/chats' , [ChatController::class, 'store'])->middleware('auth:sanctum');

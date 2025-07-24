@@ -17,8 +17,12 @@ class AIController extends Controller
     {
         $messageUser = $this->aiService->createMessageUser($request->user()->id , $chatId , $request->validated());
         $sendMessage = $this->aiService->sendMessageAi(json_encode($messageUser->message));
-//        $messageAi = $this->aiService->createMessageAI($sendMessage);
-
-        return response()->json($sendMessage);
+        $messageAi = $this->aiService->createMessageAI($chatId,$sendMessage['choices'][0]['message']['content']);
+        if (isset($messageAi))   return response()->json([
+            "message" => $messageAi->original,
+        ]);
+        return response()->json([
+            "message" => "not message",
+        ]);
     }
 }
