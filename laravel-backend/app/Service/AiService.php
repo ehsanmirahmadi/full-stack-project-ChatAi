@@ -27,10 +27,10 @@ class AiService implements AiInterfaceService
         return $res ;
     }
 
-    public function sendMessageAi($userMessage) :array
+    public function sendMessageAi($userMessage) : array
     {
         $response = Http::withHeaders([
-            'Authorization' => 'Bearer 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',
+            'Authorization' => 'Bearer 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',
             'HTTP-Referer' => 'http://laravel-api.local',
             'X-Title' => 'ChatAi',
         ])->post("https://openrouter.ai/api/v1/chat/completions" , [
@@ -44,8 +44,14 @@ class AiService implements AiInterfaceService
         ]);
         return $response->json();
     }
-    public function createMessageAI()
+    public function createMessageAI($chat_id ,$AiMessage) :JsonResponse
     {
-
+        $chatData = [
+            "chat_id" => $chat_id,
+            'message' =>  $AiMessage,
+            'role' => 1 ,
+        ];
+        $res = Message::create($chatData);
+        return response()->json($res) ;
     }
 }
