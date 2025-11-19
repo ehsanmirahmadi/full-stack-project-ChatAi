@@ -2,6 +2,7 @@ import Logi from '../../assest/imgaes/logo2.png'
 import { useState } from 'react'
 import apiClient from '../../api/api.js'
 import { useAuth } from '../../ConText/AuthContext.jsx'
+import { useNavigate } from 'react-router-dom'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -9,6 +10,7 @@ export default function LoginPage() {
   const [message, setMessage] = useState('')
   const [loding, setLoding] = useState(false)
 
+  const navigate = useNavigate();
   const { login } = useAuth()
 
   const handleLogin = async (e) => {
@@ -42,6 +44,7 @@ export default function LoginPage() {
               const user = response.data.original.user
               login(token, user)
               setLoding(false)
+              navigate("/chatbot");
             })
             .catch((error) => {
               console.log(error, 'eror login')
